@@ -1,0 +1,9 @@
+setup.py
+redpatchcam/__init__.py
+redpatchcam/sliders.py
+redpatchcam.egg-info/PKG-INFO
+redpatchcam.egg-info/SOURCES.txt
+redpatchcam.egg-info/dependency_links.txt
+redpatchcam.egg-info/requires.txt
+redpatchcam.egg-info/top_level.txt
+scripts/app.py

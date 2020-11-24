@@ -1,0 +1,11 @@
+Metadata-Version: 1.2
+Name: redpatchcam
+Version: 0.0.0
+Summary: redpatch instance on Pi Cam
+Home-page: https://github.com/TeamMacLean/redpatchcam
+Author: Dan MacLean
+Author-email: dan.maclean@tsl.ac.uk
+License: LICENSE.txt
+Description: UNKNOWN
+Platform: UNKNOWN
+Requires-Python: >=3.7
