@@ -10,13 +10,8 @@ setup(
     author_email='dan.maclean@tsl.ac.uk',
     description='redpatch instance on Pi Cam',
     scripts=['scripts/app.py'],
-    python_requires='>=3.7',
+    python_requires='>=3.6',
     install_requires=[
-        "guizero == 1.1.0",
-        "pillow == 8.0.1",
-        "tk == 8.6.10",
-        "numpy == 1.19.4",
-        "redpatch == 0.2.1",
-        "scikit-image == 0.17.2"
+        "redpatch >= 0.2.2",
     ]
 )
