@@ -9,6 +9,7 @@ tab_slider = defaultdict(dict)
 
 app = tk.Tk()
 app.geometry("800x480")
+app.geometry("+0+0")
 app.title("redpatchcam")
 
 

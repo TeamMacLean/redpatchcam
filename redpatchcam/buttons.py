@@ -1,11 +1,13 @@
-from redpatchcam import sliders, images, options
+from redpatchcam import sliders, images, options, camin
 from tkinter import ttk
 from tkinter.filedialog import askdirectory
 import redpatch as rp
 import numpy as np
 from PIL import Image, ImageTk
 from skimage import draw
+import time
 
+preview_button = {}
 
 def make_fs():
     fs = rp.FilterSettings()
@@ -41,6 +43,8 @@ def apply_button(parent, func):
     apply = ttk.Button(parent, command = func, text="Apply")
     return apply
 
+def select_preview(parent):
+    return ttk.Button(parent, command = make_image, text = "Use this image")
 
 def outputdir_button(parent):
     return ttk.Button(parent, command = get_output_dir, text='Choose' )
@@ -75,11 +79,8 @@ def do_overlay_leaf_area():
     v = get_thresholds('Leaf Area', 'v')
     mask = rp.griffin_leaf_regions(images.hsv_subject, h=h, s=s, v=v)
     i = make_overlay(mask)
-    #print(img_panes)
     images.image_panes['Leaf Area'].configure(image = i)
     images.image_panes['Leaf Area'].image = i
-    #img_panes['Leaf Area'].configure(image = i)
-    #img_panes['Leaf Area'].image = i
     
 def do_overlay_healthy_area():
     h = get_thresholds('Healthy Area', 'h')
@@ -87,8 +88,6 @@ def do_overlay_healthy_area():
     v = get_thresholds('Healthy Area', 'v')
     mask, _ = rp.griffin_healthy_regions(images.hsv_subject, h=h, s=s, v=v)
     i = make_overlay(mask)
-    #pane.configure(image = i)
-    #pane.image = i
     images.image_panes['Healthy Area'].configure(image = i)
     images.image_panes['Healthy Area'].image = i
     
@@ -98,8 +97,6 @@ def do_overlay_lesion_area():
     v = get_thresholds('Lesion Area', 'v')
     mask, _ = rp.griffin_lesion_regions(images.hsv_subject, h=h, s=s, v=v)
     i = make_overlay(mask)
-    #pane.configure(image = i)
-    #pane.image = i
     images.image_panes['Lesion Area'].configure(image = i)
     images.image_panes['Lesion Area'].image = i
 
@@ -115,7 +112,6 @@ def do_overlay_lesion_centres():
     if scale is None:
         scale = float('nan')
     pixel_length = 1/scale
-
 
     s = rp.SubImage(images.hsv_subject,1,'empty',file_settings=fs, dest_folder="none",
                     scale = scale,
@@ -143,8 +139,6 @@ def do_overlay_scale_card():
     v = get_thresholds('Scale Card', 'v')
     mask = rp.griffin_leaf_regions(images.hsv_subject, h=h, s=s, v=v)
     i = make_overlay(mask)
-    #pane.configure(image = i)
-    #pane.image = i
     images.image_panes['Scale Card'].configure(image = i)
     images.image_panes['Scale Card'].image = i
 

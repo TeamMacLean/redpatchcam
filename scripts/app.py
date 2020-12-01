@@ -1,4 +1,4 @@
-from redpatchcam import sliders, buttons, images, options, files
+from redpatchcam import sliders, buttons, images, options, files, camin
 from tkinter import ttk
 import tkinter as tk
 import tempfile
@@ -7,6 +7,11 @@ import shutil
 import os
 import logging
 import datetime
+import picamera
+from io import BytesIO
+import time
+import redpatch as rp
+from PIL import Image, ImageTk
 
 
 app = sliders.app
@@ -64,12 +69,13 @@ def run_batch():
         temp_dir = tempfile.TemporaryDirectory()
         filter_dir = tempfile.TemporaryDirectory(dir=temp_dir.name)
         logging.basicConfig(filename=os.path.join(options.optvals['output_dir'].get(), start_time, 'logfile.txt'), level=logging.DEBUG, filemode='w')
-        shutil.copy("/Users/macleand/Desktop/server_test/centered_leaf.jpg", os.path.join(temp_dir.name, "redpatchcam_image.jpg") )
+        shutil.copy("working_image.jpg", os.path.join(temp_dir.name, "redpatchcam_image.jpg") )
         files.export_settings(os.path.join(filter_dir.name, "filter_settings.yml"))
         command = make_bp(temp_dir.name, filter_dir.name,start_time)
         progress['value'] = 40
         app.update()
-        process = subprocess.run(command, capture_output=True)
+        logging.info(" ".join(command) )
+        process = subprocess.run(command, stdout=subprocess.PIPE)
         if process.returncode == 0:
             logging.info("Completed Successfully")
             progress['value'] = 100
@@ -89,11 +95,48 @@ def run_batch():
     finally:
         filter_dir.cleanup()
         temp_dir.cleanup()
+        for f in ['fs.jpg', 'preview.jpg', 'working_image.jpg']:
+            if os.path.exists(f):
+                os.remove(f)
+
 
 
 
 apply_buttons = {}
 tab_store = {}
+
+t = ttk.Frame(tabs)
+tabs.add(t, text="Preview")
+tab_store['Preview'] = t
+images.image_panes['Preview'] = ttk.Label(t, image=images.preview)
+images.image_panes['Preview'].grid(column=0, row=0, rowspan=15)
+
+
+camin.get_stream()
+
+def make_final_image():
+    app.after_cancel(camin.cbs['cam_update'])
+    buttons.preview_button['Preview'].destroy()
+    camin.preview_cam.close()
+    time.sleep(2)
+    del camin.preview_cam
+
+    shutil.copyfile('fs.jpg', 'working_image.jpg')
+    fi = Image.open("fs.jpg")
+    fi.thumbnail((400,400), Image.ANTIALIAS)
+    fi = fi.convert(mode="RGBA")
+    fi.save('preview.jpg', "JPEG")
+    images.preview = ImageTk.PhotoImage(fi)
+    images.hsv_subject = rp.load_as_hsv('preview.jpg')
+    images.rgb_subject = fi
+    for n in ['Scale Card','Leaf Area', 'Lesion Area', 'Lesion Centres']:
+        images.image_panes[n].config(image=images.preview) 
+        images.image_panes[n].image = images.preview
+
+
+buttons.preview_button['Preview'] = ttk.Button(tab_store['Preview'], command = make_final_image, text = "Use this image")
+buttons.preview_button['Preview'].grid(column=2, row=8, padx=20)
+
 for n in tab_names:
     t = ttk.Frame(tabs)
     tabs.add(t, text=n)
